@@ -1,0 +1,61 @@
+type ProjectFactory @entity {
+  # factory address
+  id: ID!
+  # pair info
+  projectCount: Int!
+
+  projectIds: [ID]! # all project contracts address 
+  
+}
+
+type Project @entity {
+  id: ID! # project contract address
+  revenue: BigDecimal!
+  name: String! # string
+  projectId: String! # string
+  members: [UserQuotas]! @derivedFrom(field: "user")
+  totalPaid: BigDecimal!
+  
+}
+
+type User @entity {
+  id: ID!
+  name: String!
+  organization: String!
+  projects: [UserQuotas]! @derivedFrom(field: "project")
+}
+
+type UserQuotas @entity {
+  id: ID! # Set to `${user.id}-${project.id}`
+  user: User!
+  project: Project!
+  quota: BigDecimal!
+  outstandingShare: BigDecimal!
+  paid: BigDecimal!
+}
+
+type Distributor @entity {
+  id: ID! # Set to `${user.id}-${project.id}`
+  user: User!
+  project: Project!
+  quota: BigDecimal!
+}
+
+# type Organization @entity {
+#   id: ID!
+#   name: String!
+#   members: [UserOrganization]! @derivedFrom(field: "user")
+# }
+
+# type User @entity {
+#   id: ID!
+#   name: String!
+#   organizations: [UserOrganization!] @derivedFrom(field: "organization")
+# }
+
+# type UserOrganization @entity {
+#   id: ID! # Set to `${user.id}-${organization.id}`
+#   user: User!
+#   organization: Organization!
+# }
+

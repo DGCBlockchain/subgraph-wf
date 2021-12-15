@@ -1,0 +1,53 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: factory
+    network: rinkeby
+    source:
+      address: "0x9c944C76e3f68EfB15A29e9A41f0A0f3c89009DF"
+      abi: factory
+      startBlock: 9815040
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Project
+        - User
+      abis:
+        - name: factory
+          file: ./abis/factory.json
+      eventHandlers:
+        - event: ProjectCreated(indexed string,indexed string,address)
+          handler: handleProjectCreated
+      file: ./src/factory.ts
+templates:
+  - name: Project
+    kind: ethereum/contract
+    network: rinkeby
+    source:
+      abi: Project
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/Project.ts
+      entities:
+        - Project
+        - User
+      abis:
+        - name: Project
+          file: ./abis/Project.json
+        - name: ProjectFactory
+          file: ./abis/factory.json
+      eventHandlers:
+        - event: REVENUE_GENERATED(indexed uint256,indexed address,indexed address)
+          handler: handleIncomingRevenue
+        - event: SHARE_PAID(indexed uint256,indexed address)
+          handler: payUser
+        - event: USER_ADDED(indexed address, indexed uint256)
+          handler: addUser
+        - event: DISTRIBUTION_RIGHT_AWARDED(indexed address, indexed string)
+          handler: addDistributor
