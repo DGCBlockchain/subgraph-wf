@@ -6,9 +6,9 @@ dataSources:
     name: factory
     network: rinkeby
     source:
-      address: "0x9c944C76e3f68EfB15A29e9A41f0A0f3c89009DF"
+      address: "0x10C2352207561B1895F7f5a289304b1c63A6A78e"
       abi: factory
-      startBlock: 9815040
+      startBlock: 9830566
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -20,7 +20,7 @@ dataSources:
         - name: factory
           file: ./abis/factory.json
       eventHandlers:
-        - event: ProjectCreated(indexed string,indexed string,address)
+        - event: ProjectCreated(indexed string,indexed string,address,uint256)
           handler: handleProjectCreated
       file: ./src/factory.ts
 templates:
@@ -43,11 +43,11 @@ templates:
         - name: ProjectFactory
           file: ./abis/factory.json
       eventHandlers:
-        - event: REVENUE_GENERATED(indexed uint256,indexed address,indexed address)
-          handler: handleIncomingRevenue
-        - event: SHARE_PAID(indexed uint256,indexed address)
-          handler: payUser
-        - event: USER_ADDED(indexed address, indexed uint256)
-          handler: addUser
-        - event: DISTRIBUTION_RIGHT_AWARDED(indexed address, indexed string)
-          handler: addDistributor
+        # - event: REVENUE_GENERATED(indexed uint256,indexed address,indexed string)
+        #   handler: handleIncomingRevenue
+        # - event: SHARE_PAID(indexed uint256,indexed address)
+        #   handler: handleUserPayement
+        - event: USER_ADDED(indexed address,indexed string,string,indexed uint256)
+          handler: handleNewUser
+        # - event: DISTRIBUTION_RIGHT_AWARDED(indexed address,string)
+        #   handler: handleNewDistributor

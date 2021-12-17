@@ -1,47 +1,28 @@
-import { BigInt } from "@graphprotocol/graph-ts"
-import { factory, ProjectCreated } from "../generated/factory/factory"
-import { ExampleEntity } from "../generated/schema"
+import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { factory , ProjectCreated } from "../generated/factory/factory";
+import { ProjectFactory } from "../generated/schema";
+import { Project as ProjectTemplate } from "../generated/templates"
 
+export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
+export const FACTORY_ADDRESS = '0xF4190abd493410cb6fA6A1Ed0A6d36d48CF9e5d1'
 export function handleProjectCreated(event: ProjectCreated): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from.toHex())
 
-  // // Entities only exist after they have been saved to the store;
-  // // `null` checks allow to create entities on demand
-  // if (!entity) {
-  //   entity = new ExampleEntity(event.transaction.from.toHex())
+ // load factory (create if first time)
+  let factory = ProjectFactory.load(FACTORY_ADDRESS);
+  if (factory === null) {
+    factory = new ProjectFactory(FACTORY_ADDRESS);
+    factory.projectCount = BigInt.fromI32(0);
+  }
 
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0)
-  // }
+  factory.projectCount = BigInt.fromI32(1).plus(factory.projectCount);
+  factory.save();
 
-  // // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1)
+  // create the tracked contract based on the template
+  ProjectTemplate.create(event.params.project);
+  factory.projectIds.push(event.params.project);
+  
+  //save updated values
+  factory.save();
 
-  // // Entity fields can be set based on event parameters
-  // entity.name = event.params.name
-  // entity.projectId = event.params.projectId
 
-  // // Entities can be written to the store with `.save()`
-  // entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.allProjects(...)
-  // - contract.feeTo(...)
-  // - contract.feeToSetter(...)
 }

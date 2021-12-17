@@ -2,18 +2,21 @@ type ProjectFactory @entity {
   # factory address
   id: ID!
   # pair info
-  projectCount: Int!
+  projectCount: BigInt!
 
-  projectIds: [ID]! # all project contracts address 
+  projectIds: [Bytes!]! # all project contracts address 
   
+  # projectIds: [Project]! @derivedFrom(field: "projectId") # if above syntax doesnt work
 }
 
 type Project @entity {
-  id: ID! # project contract address
+  #Project Address
+  id: ID!
+
   revenue: BigDecimal!
   name: String! # string
   projectId: String! # string
-  members: [UserQuotas]! @derivedFrom(field: "user")
+  members: [UserMapping!]! @derivedFrom(field: "project")
   totalPaid: BigDecimal!
   
 }
@@ -22,40 +25,14 @@ type User @entity {
   id: ID!
   name: String!
   organization: String!
-  projects: [UserQuotas]! @derivedFrom(field: "project")
+  quotas: [UserMapping!]! @derivedFrom(field: "user")
 }
 
-type UserQuotas @entity {
+type UserMapping @entity {
   id: ID! # Set to `${user.id}-${project.id}`
   user: User!
   project: Project!
-  quota: BigDecimal!
+  quota: BigInt! # this should be BigDecimal
   outstandingShare: BigDecimal!
   paid: BigDecimal!
 }
-
-type Distributor @entity {
-  id: ID! # Set to `${user.id}-${project.id}`
-  user: User!
-  project: Project!
-  quota: BigDecimal!
-}
-
-# type Organization @entity {
-#   id: ID!
-#   name: String!
-#   members: [UserOrganization]! @derivedFrom(field: "user")
-# }
-
-# type User @entity {
-#   id: ID!
-#   name: String!
-#   organizations: [UserOrganization!] @derivedFrom(field: "organization")
-# }
-
-# type UserOrganization @entity {
-#   id: ID! # Set to `${user.id}-${organization.id}`
-#   user: User!
-#   organization: Organization!
-# }
-
