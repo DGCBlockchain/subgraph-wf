@@ -9,7 +9,7 @@ import {
 import { Project as ProjectContract } from '../generated/templates';
 import { USER_ADDED } from '../generated/templates/Project/Project';
 
-export const FACTORY_ADDRESS = '0xF4190abd493410cb6fA6A1Ed0A6d36d48CF9e5d1';
+export const FACTORY_ADDRESS = '0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE';
 
 // TODO: Goal: I should be able to query the functionality of the following functions 
 // getAllProjects() - returns a list of all projects created from the factory
@@ -25,7 +25,7 @@ export function handleNewUser(event: USER_ADDED): void {
     if (user === null) {
         user = new User(USER_ADDRESS);
         user.name = event.params.name.toHexString();
-        user.organization = event.params.organization;
+        user.organization = event.params.organization.toHexString();
     
     }
 

@@ -6,12 +6,12 @@ dataSources:
     name: factory
     network: rinkeby
     source:
-      address: "0x10C2352207561B1895F7f5a289304b1c63A6A78e"
+      address: "0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE"
       abi: factory
-      startBlock: 9830566
+      startBlock: 9848429
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Project
@@ -20,7 +20,7 @@ dataSources:
         - name: factory
           file: ./abis/factory.json
       eventHandlers:
-        - event: ProjectCreated(indexed string,indexed string,address,uint256)
+        - event: ProjectCreated(indexed bytes32,indexed bytes32,address,uint256)
           handler: handleProjectCreated
       file: ./src/factory.ts
 templates:
@@ -47,7 +47,7 @@ templates:
         #   handler: handleIncomingRevenue
         # - event: SHARE_PAID(indexed uint256,indexed address)
         #   handler: handleUserPayement
-        - event: USER_ADDED(indexed address,indexed string,string,indexed uint256)
+        - event: USER_ADDED(indexed address,indexed bytes32,bytes32,indexed uint256)
           handler: handleNewUser
         # - event: DISTRIBUTION_RIGHT_AWARDED(indexed address,string)
         #   handler: handleNewDistributor

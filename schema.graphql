@@ -1,10 +1,10 @@
 type ProjectFactory @entity {
   # factory address
   id: ID!
-  # pair info
+  # project info
   projectCount: BigInt!
 
-  projectIds: [Bytes!]! # all project contracts address 
+  projectIds: [String!]! # all project contracts address 
   
   # projectIds: [Project]! @derivedFrom(field: "projectId") # if above syntax doesnt work
 }
