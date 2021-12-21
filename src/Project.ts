@@ -79,4 +79,15 @@ export function handleNewUser(event: USER_ADDED): void {
     }
   }
 }
+***********************
+query where example to emulate
+{
+  swaps(where: {address: "0x3f1d224557afa4365155ea77ce4bc32d5dae2174" }) {
+    address
+    tokens {
+      address
+      name
+    }
+  }
+}
 */
