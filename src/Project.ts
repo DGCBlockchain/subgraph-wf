@@ -24,8 +24,8 @@ export function handleNewUser(event: USER_ADDED): void {
     let user = User.load(USER_ADDRESS);
     if (user === null) {
         user = new User(USER_ADDRESS);
-        user.name = event.params.name.toHexString();
-        user.organization = event.params.organization.toHexString();
+        user.name = event.params.name.toString();
+        user.organization = event.params.organization.toString();
     
     }
 
@@ -44,3 +44,39 @@ export function handleNewUser(event: USER_ADDED): void {
 
 }
 
+/*
+************* example queries ****************************** 
+// get all projects and member info
+{
+  projectFactories(first: 5) {
+    id
+    projectCount
+    projectIds
+  }
+  projects(first: 5) {
+    id
+    revenue
+    name
+    projectId
+    members {
+      id
+      quota
+    }
+  }
+}
+*********************************
+// get users
+{
+  users {
+    id
+    name
+    organization
+    quotas {
+      id
+      user {
+        id
+      }
+    }
+  }
+}
+*/

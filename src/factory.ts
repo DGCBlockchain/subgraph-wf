@@ -1,6 +1,6 @@
-import { BigInt, Address } from "@graphprotocol/graph-ts";
+import { BigInt, Address, BigDecimal } from "@graphprotocol/graph-ts";
 import {  ProjectCreated } from "../generated/factory/factory";
-import { Project, ProjectFactory } from "../generated/schema";
+import { Project, ProjectFactory, User, UserMapping } from "../generated/schema";
 import { Project as ProjectTemplate } from "../generated/templates";
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
@@ -18,18 +18,20 @@ export function handleProjectCreated(event: ProjectCreated): void {
  
 
   factory.projectCount = BigInt.fromI32(1).plus(factory.projectCount);
-   // factory.projectIds = new Array<string>();
-   let pIds = new Array<string>();
+  let pIds = new Array<string>();
   
-   pIds = factory.projectIds;
-   pIds.push(event.params.project.toHexString());
+  pIds = factory.projectIds;
+  pIds.push(event.params.project.toHexString());
    
-   factory.projectIds = pIds;
-   factory.save();
+  factory.projectIds = pIds;
+  factory.save();
 
   let project = new Project(event.params.project.toHexString());
   project.name = event.params.name.toString();
   project.projectId = event.params.projectId.toString();
+  project.revenue = BigDecimal.zero();
+  project.totalPaid = BigDecimal.zero();
+  // project.members = new Array
   project.save();
 
   // create the tracked contract based on the template
