@@ -4,15 +4,16 @@ type ProjectFactory @entity {
   # project info
   projectCount: BigInt!
 
-  projectIds: [String!]! # all project contracts address 
+  projectIds: [String!]!
+
+  # projectIds: [String!]! # all project contracts address 
   
-  # projectIds: [Project]! @derivedFrom(field: "projectId") # if above syntax doesnt work
+  # projectIds: [Project!]! @derivedFrom(field: "projectId") # if above syntax doesnt work
 }
 
 type Project @entity {
   #Project Address
   id: ID!
-
   revenue: BigDecimal!
   name: String! # string
   projectId: String! # string

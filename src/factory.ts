@@ -12,12 +12,20 @@ export function handleProjectCreated(event: ProjectCreated): void {
   if (factory === null) {
     factory = new ProjectFactory(FACTORY_ADDRESS);
     factory.projectCount = BigInt.fromI32(0);
+    factory.projectIds = new Array<string>();
   }
 
-  factory.projectIds.push(event.params.project.toHexString());
+ 
 
   factory.projectCount = BigInt.fromI32(1).plus(factory.projectCount);
-  factory.save();
+   // factory.projectIds = new Array<string>();
+   let pIds = new Array<string>();
+  
+   pIds = factory.projectIds;
+   pIds.push(event.params.project.toHexString());
+   
+   factory.projectIds = pIds;
+   factory.save();
 
   let project = new Project(event.params.project.toHexString());
   project.name = event.params.name.toString();
