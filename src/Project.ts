@@ -3,21 +3,24 @@ import {
     Project,
     ProjectFactory,
     User,
-    UserMapping
+    UserMapping,
+    Distributor,
+    DistributorMapping
   } from '../generated/schema';
 
 import { Project as ProjectContract } from '../generated/templates';
-import { USER_ADDED } from '../generated/templates/Project/Project';
+import { USER_ADDED, DISTRIBUTION_RIGHT_AWARDED } from '../generated/templates/Project/Project';
 
 export const FACTORY_ADDRESS = '0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE';
 
-// TODO: Goal: I should be able to query the functionality of the following functions 
+// TODO: Goals: I should be able to query the functionality of the following functions 
 // getAllProjects() - returns a list of all projects created from the factory -> Done
-// getUserProjects(userID) - returns all  projects a user is registered to along with quotas and other useful information 
-// getProjectUsers(projectID) - returns all users of a project with their quotas
+// getUserProjects(userID) - returns all  projects a user is registered to along with quotas and other useful information -> done , test with multiple user
+// getProjectUsers(projectID) - returns all users of a project with their quotas - Done, to be tested
 // getProjectDistributors(projectID) - returns all distributers that have distribution rights for a project
 // getDistributorProjectS(distributorId)- returns all projects that a distributor has rights for.
 
+// test on rinkeby
 export function handleNewUser(event: USER_ADDED): void {
 
     const USER_ADDRESS = event.params.id.toHexString();
@@ -37,11 +40,30 @@ export function handleNewUser(event: USER_ADDED): void {
         userQuota.paid = BigDecimal.zero();
         userQuota.outstandingShare = BigDecimal.zero(); 
         userQuota.quota = event.params.quota;
-        // userQuota.user = event.params.id.toString();  
         userQuota.user = user.id;   
     }
     userQuota.save();
     user.save();
+
+}
+
+export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
+
+  const DISTRIBUTOR_ADDRESS = event.params.id.toHexString();
+  let distributor = Distributor.load(DISTRIBUTOR_ADDRESS);
+  if (distributor === null) {
+      distributor = new Distributor(DISTRIBUTOR_ADDRESS);
+      distributor.name = event.params.name.toString();  
+  }
+
+  let mappingId = event.params.id.toHexString().concat('-').concat(event.address.toHexString())
+  let distributorMapping = DistributorMapping.load(mappingId)
+  if(distributorMapping === null) {
+    distributorMapping  = new DistributorMapping(mappingId);
+    distributorMapping.distributor = distributor.id;
+  }
+  distributorMapping.save();
+  distributor.save();
 
 }
 
@@ -100,6 +122,41 @@ export function handleNewUser(event: USER_ADDED): void {
   }
 }
 
+//get projects with users and distributors -> bug: unable to see distributors
+{
+  projects {
+    id
+    revenue
+    name
+    projectId
+    members  {
+      quota
+      user {
+        name
+      }
+    }
+    distributors {
+      distributor {
+        id
+        name
+        
+      }
+    }
+  }
+}
+
+// get all distributors -> bug only see project ids and not names
+
+{
+  distributors {
+    id
+    name
+    projects {
+      id
+    }
+      
+  }
+}
 // query for a single project
 
 

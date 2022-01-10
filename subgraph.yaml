@@ -49,5 +49,5 @@ templates:
         #   handler: handleUserPayement
         - event: USER_ADDED(indexed address,indexed bytes32,bytes32,indexed uint256)
           handler: handleNewUser
-        # - event: DISTRIBUTION_RIGHT_AWARDED(indexed address,string)
-        #   handler: handleNewDistributor
+        - event: DISTRIBUTION_RIGHT_AWARDED(indexed address,indexed bytes32)
+          handler: handleNewDistributor

@@ -18,6 +18,7 @@ type Project @entity {
   name: String! # string
   projectId: String! # string
   members: [UserMapping!]! @derivedFrom(field: "project")
+  distributors: [DistributorMapping!]! @derivedFrom(field: "project")
   totalPaid: BigDecimal!
   
 }
@@ -36,4 +37,16 @@ type UserMapping @entity {
   quota: BigInt! # this should be BigDecimal
   outstandingShare: BigDecimal!
   paid: BigDecimal!
+}
+
+type Distributor @entity {
+  id: ID!
+  name: String!
+  projects: [DistributorMapping!]! @derivedFrom(field: "distributor")
+}
+
+type DistributorMapping @entity {
+  id: ID! # Set to `${distributor.id}-${project.id}`
+  distributor: Distributor!
+  project: Project!
 }
