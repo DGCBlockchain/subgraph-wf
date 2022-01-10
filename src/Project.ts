@@ -9,7 +9,7 @@ import {
   } from '../generated/schema';
 
 import { Project as ProjectContract } from '../generated/templates';
-import { USER_ADDED, DISTRIBUTION_RIGHT_AWARDED } from '../generated/templates/Project/Project';
+import { USER_ADDED, DISTRIBUTION_RIGHT_AWARDED, REVENUE_GENERATED } from '../generated/templates/Project/Project';
 
 export const FACTORY_ADDRESS = '0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE';
 
@@ -61,9 +61,32 @@ export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
   if(distributorMapping === null) {
     distributorMapping  = new DistributorMapping(mappingId);
     distributorMapping.distributor = distributor.id;
+    distributorMapping.project = event.address.toHexString();
   }
   distributorMapping.save();
   distributor.save();
+
+}
+
+export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
+
+  TODO:// add revenue inflow
+  // const DISTRIBUTOR_ADDRESS = event.params.id.toHexString();
+  // let distributor = Distributor.load(DISTRIBUTOR_ADDRESS);
+  // if (distributor === null) {
+  //     distributor = new Distributor(DISTRIBUTOR_ADDRESS);
+  //     distributor.name = event.params.name.toString();  
+  // }
+
+  // let mappingId = event.params.id.toHexString().concat('-').concat(event.address.toHexString())
+  // let distributorMapping = DistributorMapping.load(mappingId)
+  // if(distributorMapping === null) {
+  //   distributorMapping  = new DistributorMapping(mappingId);
+  //   distributorMapping.distributor = distributor.id;
+  //   distributorMapping.project = event.address.toHexString();
+  // }
+  // distributorMapping.save();
+  // distributor.save();
 
 }
 
@@ -122,7 +145,7 @@ export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
   }
 }
 
-//get projects with users and distributors -> bug: unable to see distributors
+//get projects with users and distributors -> fixed
 {
   projects {
     id
@@ -145,7 +168,7 @@ export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
   }
 }
 
-// get all distributors -> bug only see project ids and not names
+// get all distributors -> fixed
 
 {
   distributors {
