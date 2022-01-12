@@ -29,8 +29,9 @@ export function handleProjectCreated(event: ProjectCreated): void {
   let project = new Project(event.params.project.toHexString());
   project.name = event.params.name.toString();
   project.projectId = event.params.projectId.toString();
-  project.revenue = BigDecimal.zero();
+  project.totalRevenue = BigDecimal.zero();
   project.totalPaid = BigDecimal.zero();
+  project.outStandingDues = BigDecimal.zero();
   // project.members = new Array
   project.save();
 

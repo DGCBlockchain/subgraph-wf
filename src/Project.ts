@@ -16,8 +16,8 @@ export const FACTORY_ADDRESS = '0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE';
 // TODO: Goals: I should be able to query the functionality of the following functions 
 // getAllProjects() - returns a list of all projects created from the factory -> Done
 // getUserProjects(userID) - returns all  projects a user is registered to along with quotas and other useful information -> done , test with multiple user
-// getProjectUsers(projectID) - returns all users of a project with their quotas - Done, to be tested
-// getProjectDistributors(projectID) - returns all distributers that have distribution rights for a project
+// getProjectUsers(projectID) - returns all users of a project with their quotas - Done
+// getProjectDistributors(projectID) - returns all distributers that have distribution rights for a project - > done
 // getDistributorProjectS(distributorId)- returns all projects that a distributor has rights for.
 
 // test on rinkeby
@@ -56,12 +56,13 @@ export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
       distributor.name = event.params.name.toString();  
   }
 
-  let mappingId = event.params.id.toHexString().concat('-').concat(event.address.toHexString())
+  let mappingId = event.params.id.toHexString().concat('-').concat(event.address.toHexString());
   let distributorMapping = DistributorMapping.load(mappingId)
   if(distributorMapping === null) {
     distributorMapping  = new DistributorMapping(mappingId);
     distributorMapping.distributor = distributor.id;
     distributorMapping.project = event.address.toHexString();
+    distributorMapping.revenueCollectedForProject = BigDecimal.zero();
   }
   distributorMapping.save();
   distributor.save();
@@ -70,23 +71,40 @@ export function handleNewDistributor(event: DISTRIBUTION_RIGHT_AWARDED): void {
 
 export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
 
-  TODO:// add revenue inflow
-  // const DISTRIBUTOR_ADDRESS = event.params.id.toHexString();
-  // let distributor = Distributor.load(DISTRIBUTOR_ADDRESS);
-  // if (distributor === null) {
-  //     distributor = new Distributor(DISTRIBUTOR_ADDRESS);
-  //     distributor.name = event.params.name.toString();  
-  // }
+  // TODO: add revenue inflow
+ //  const CONTRACT_ADDRESS = event.params.projectId.toHexString(); // projectID in REVENUE_GENERATED event is not contract Address, project ID is human readable ID of the project, which might be redundant and could be removed as we can get this info from event.address.toHexString()
+  const DISTRIBUTOR_ADDRESS = event.params.distributor.toHexString();
+  const CONTRACT_ADDRESS = event.address.toHexString();
+  let mappingId = DISTRIBUTOR_ADDRESS.concat('-').concat(CONTRACT_ADDRESS);
 
-  // let mappingId = event.params.id.toHexString().concat('-').concat(event.address.toHexString())
-  // let distributorMapping = DistributorMapping.load(mappingId)
-  // if(distributorMapping === null) {
-  //   distributorMapping  = new DistributorMapping(mappingId);
-  //   distributorMapping.distributor = distributor.id;
-  //   distributorMapping.project = event.address.toHexString();
-  // }
-  // distributorMapping.save();
-  // distributor.save();
+  let distributor = Distributor.load(DISTRIBUTOR_ADDRESS);
+  if (distributor === null) {
+      distributor = new Distributor(DISTRIBUTOR_ADDRESS);
+  }
+
+
+  let project = Project.load(CONTRACT_ADDRESS); 
+  if (project === null) {
+    project = new Project(CONTRACT_ADDRESS);
+  }
+
+  let distributorMapping = DistributorMapping.load(mappingId);
+  if(distributorMapping === null) {
+    distributorMapping  = new DistributorMapping(mappingId);
+    distributorMapping.distributor = distributor.id;
+    distributorMapping.project = project.id;
+  }
+  
+  distributorMapping.revenueCollectedForProject = distributorMapping.revenueCollectedForProject.plus(event.params.amount.toBigDecimal());
+  project.totalRevenue = project.totalRevenue.plus(event.params.amount.toBigDecimal());
+  project.outStandingDues = project.totalRevenue.minus(project.totalPaid);
+
+  
+  // distributorMapping.TotalRevenue = distributorMapping.TotalRevenue.plus(event.params.amount);
+  // distributorMapping.OutStandingDues = distributorMapping.TotalRevenue.minus(distributorMapping.TotalPaid);
+  distributorMapping.save();
+  distributor.save();
+  project.save();
 
 }
 
@@ -101,9 +119,10 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
   }
   projects(first: 5) {
     id
-    revenue
+    totalRevenue
     name
     projectId
+    outStandingDues
     members {
       id
       quota
@@ -176,6 +195,7 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
     name
     projects {
       id
+      revenueCollectedForProject
     }
       
   }
@@ -186,12 +206,18 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
 {
     project(id: "0x5c671eaf3a6191b38b8052ab1b6db33b1714d6ec") {
     id
-    revenue
+    totalRevenue
+    totalPaid
+    outStandingDues
     name
     projectId
     members {
       id
       quota
+    }
+    distributors {
+      id
+      revenueCollectedForProject
     }
   }
 }

@@ -14,12 +14,13 @@ type ProjectFactory @entity {
 type Project @entity {
   #Project Address
   id: ID!
-  revenue: BigDecimal!
+  totalRevenue: BigDecimal!
   name: String! # string
   projectId: String! # string
   members: [UserMapping!]! @derivedFrom(field: "project")
   distributors: [DistributorMapping!]! @derivedFrom(field: "project")
   totalPaid: BigDecimal!
+  outStandingDues: BigDecimal!
   
 }
 
@@ -49,4 +50,13 @@ type DistributorMapping @entity {
   id: ID! # Set to `${distributor.id}-${project.id}`
   distributor: Distributor!
   project: Project!
+  revenueCollectedForProject: BigDecimal!
 }
+
+# type ProjectRevenueAccounting @entity {
+#   id: ID!
+#   project: Project!
+#   TotalRevenue: BigInt!
+#   TotalPaid: BigInt!
+#   OutStandingDues: BigInt!
+# }
