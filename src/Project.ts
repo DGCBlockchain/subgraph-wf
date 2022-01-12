@@ -9,7 +9,7 @@ import {
   } from '../generated/schema';
 
 import { Project as ProjectContract } from '../generated/templates';
-import { USER_ADDED, DISTRIBUTION_RIGHT_AWARDED, REVENUE_GENERATED } from '../generated/templates/Project/Project';
+import { USER_ADDED, DISTRIBUTION_RIGHT_AWARDED, REVENUE_GENERATED, SHARE_PAID } from '../generated/templates/Project/Project';
 
 export const FACTORY_ADDRESS = '0xdaaC03F38D08f8EaC92A51705C11FF1515c4A0BE';
 
@@ -39,7 +39,7 @@ export function handleNewUser(event: USER_ADDED): void {
         userQuota.project = event.address.toHexString();
         userQuota.paid = BigDecimal.zero();
         userQuota.outstandingShare = BigDecimal.zero(); 
-        userQuota.quota = event.params.quota;
+        userQuota.quota = event.params.quota.toBigDecimal();
         userQuota.user = user.id;   
     }
     userQuota.save();
@@ -108,6 +108,50 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
 
 }
 
+
+export function handleUserPayement(event: SHARE_PAID): void {
+
+ 
+  const USER_ADDRESS = event.params.userId.toHexString();
+  const CONTRACT_ADDRESS = event.address.toHexString();
+  let mappingId = USER_ADDRESS.concat('-').concat(CONTRACT_ADDRESS);
+
+  let user = User.load(USER_ADDRESS);
+  if (user === null) {
+      user = new User(USER_ADDRESS);
+  
+  }
+
+  
+  let userQuota = UserMapping.load(mappingId)
+  if(userQuota === null) {
+      userQuota  = new UserMapping(mappingId);
+  }
+
+  userQuota.project = CONTRACT_ADDRESS;
+  userQuota.paid = userQuota.paid.plus(event.params.amount.toBigDecimal());
+  let quota = userQuota.quota.div(BigDecimal.fromString("100"));
+
+
+
+  let project = Project.load(CONTRACT_ADDRESS); 
+  if (project === null) {
+    project = new Project(CONTRACT_ADDRESS);
+  }
+  // todo: test this, this might not be correct as depending on the order only the last user in userQuota/mapping might get the correct outstanding and totalpaid balances.
+  // alternatively, we could directly get outstanding dues and totoal revenue directly from blockchain/contract to always get the most updated values for all users.
+  project.totalPaid = project.totalPaid.plus(event.params.amount.toBigDecimal()); 
+  project.outStandingDues = project.totalRevenue.minus(project.totalPaid);
+  
+  userQuota.outstandingShare = project.outStandingDues.times(quota);
+
+
+  user.save();
+  project.save();
+  userQuota.save();
+
+}
+
 /*
 ************* example queries ****************************** 
 // get all projects and member info
@@ -139,6 +183,7 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
     quotas {
       id
       outstandingShare
+      paid
       project {
         id
         name
@@ -150,7 +195,9 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
 // get projects
 {
     projects {
-    revenue
+    totalPaid
+    totalRevenue
+    outStandingDues
     name
     projectId
     members {
@@ -168,7 +215,9 @@ export function handleRevenueInFlow(event: REVENUE_GENERATED): void {
 {
   projects {
     id
-    revenue
+    totalPaid
+    totalRevenue
+    outStandingDues
     name
     projectId
     members  {

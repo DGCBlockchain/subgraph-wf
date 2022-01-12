@@ -35,7 +35,7 @@ type UserMapping @entity {
   id: ID! # Set to `${user.id}-${project.id}`
   user: User!
   project: Project!
-  quota: BigInt! # this should be BigDecimal
+  quota: BigDecimal! # this should be BigDecimal
   outstandingShare: BigDecimal!
   paid: BigDecimal!
 }

@@ -45,8 +45,8 @@ templates:
       eventHandlers:
         - event: REVENUE_GENERATED(indexed uint256,indexed address,indexed bytes32)
           handler: handleRevenueInFlow
-        # - event: SHARE_PAID(indexed uint256,indexed address)
-        #   handler: handleUserPayement
+        - event: SHARE_PAID(indexed uint256,indexed address)
+          handler: handleUserPayement
         - event: USER_ADDED(indexed address,indexed bytes32,bytes32,indexed uint256)
           handler: handleNewUser
         - event: DISTRIBUTION_RIGHT_AWARDED(indexed address,indexed bytes32)
